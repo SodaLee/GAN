@@ -17,8 +17,8 @@ class generator(object):
 
 	def _generate(self, imgs):
 		'''
-		imgs: batch_size*480*640
-		return: batch_size*480*640
+		imgs: batch_size*480*640*3
+		return: batch_size*480*640*3
 		'''
 		#downsample
 		stride = [1, 1, 1, 1]
@@ -39,7 +39,9 @@ class generator(object):
 
 		with tf.name_scope('G_conv4'):
 			G_conv4_1 = conv_layer(G_pool3, [3, 3, 256, 512], stride, padding='SAME')
+			G_conv4_1 = tf.nn.leaky_relu(G_conv4_1)
 			G_conv4_2 = conv_layer(G_conv4_1, [3, 3, 512, 512], stride, padding='SAME')
+			G_conv4_2 = tf.nn.leaky_relu(G_conv4_2)
 
 		#upsample
 		with tf.name_scope('G_deconv3'):
@@ -81,7 +83,7 @@ class discriminator(object):
 
 	def _discriminate(self, imgs, freeze):
 		'''
-		raw_imgs, imgs: batch_size*480*640
+		imgs: batch_size*480*640*6
 		return: batch_size*2
 		'''
 		stride = [1, 1, 1, 1]
