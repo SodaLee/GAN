@@ -45,7 +45,7 @@ class generator(object):
 
 		#upsample
 		with tf.name_scope('G_deconv3'):
-			f_deconv3_shape = [120, 160, 256, 512]
+			f_deconv3_shape = [3, 3, 256, 512]
 			f_deconv3_shape = tf.TensorShape(f_deconv3_shape)
 			f_deconv3 = tf.Variable(tf.truncated_normal(f_deconv3_shape, stddev=0.1))
 			G_deconv3 = tf.nn.conv2d_transpose(G_conv4_2, f_deconv3, G_conv3.get_shape(), [1, 2, 2, 1], padding='SAME')
@@ -54,7 +54,7 @@ class generator(object):
 			G_deconv3 = tf.nn.leaky_relu(G_deconv3)
 
 		with tf.name_scope('G_deconv2'):
-			f_deconv2_shape = [240, 320, 128, 256]
+			f_deconv2_shape = [3, 3, 128, 256]
 			f_deconv2_shape = tf.TensorShape(f_deconv2_shape)
 			f_deconv2 = tf.Variable(tf.truncated_normal(f_deconv2_shape, stddev=0.1))
 			G_deconv2 = tf.nn.conv2d_transpose(G_deconv3, f_deconv2, G_conv2.get_shape(), [1, 2, 2, 1], padding='SAME')
@@ -63,7 +63,7 @@ class generator(object):
 			G_deconv2 = tf.nn.leaky_relu(G_deconv2)
 
 		with tf.name_scope('G_deconv1'):
-			f_deconv1_shape = [480, 640, 64, 128]
+			f_deconv1_shape = [3, 3, 64, 128]
 			f_deconv1_shape = tf.TensorShape(f_deconv1_shape)
 			f_deconv1 = tf.Variable(tf.truncated_normal(f_deconv1_shape, stddev=0.1))
 			G_deconv1 = tf.nn.conv2d_transpose(G_deconv2, f_deconv1, G_conv1.get_shape(), [1, 2, 2, 1], padding='SAME')
