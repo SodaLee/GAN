@@ -3,9 +3,9 @@ from utils import generator, discriminator
 import cv2
 import numpy as np
 
-batch_size = 2
-plain = np.zeros((210, 480, 640, 3), float)
-real = np.zeros((210, 480, 640, 3), float)
+batch_size = 8
+plain = np.zeros((210, 48, 64, 3), float)
+real = np.zeros((210, 48, 64, 3), float)
 
 def gans(ginputs, dinputs, choice, freeze_D):
 	gout = generator(ginputs).get_G()
@@ -23,13 +23,14 @@ def gans(ginputs, dinputs, choice, freeze_D):
 
 def save_img(imgs, step):
 	print("saving %d rounds img." % step)
+	print(np.shape(imgs))
 	for i in range(batch_size):
-		cv2.imwrite('output/train_' + str(step) + '/' + str(i).zfill(4) + '.png', imgs[i])
+		cv2.imwrite('output/train_' + str(step) + '/' + str(i).zfill(4) + '.png', imgs[0][i])
 
 
-def train_net(maxiter=100, restore=False, check_path = '', K = 3):
-	ginputs = tf.placeholder(tf.float32, [batch_size, 480, 640, 3])
-	dinputs = tf.placeholder(tf.float32, [batch_size, 480, 640, 3])
+def train_net(maxiter=100, restore=False, check_path = '', K = 3, log_n = 10):
+	ginputs = tf.placeholder(tf.float32, [batch_size, 48, 64, 3])
+	dinputs = tf.placeholder(tf.float32, [batch_size, 48, 64, 3])
 	choice = tf.placeholder(tf.bool, [])
 	freeze_D = tf.placeholder(tf.bool, [])
 	G_out, D_out = gans(ginputs, dinputs, choice, freeze_D)
@@ -62,21 +63,24 @@ def train_net(maxiter=100, restore=False, check_path = '', K = 3):
 						  choice: False,
 						  freeze_D: False}
 				feed_G = {ginputs: plain1,
+						  dinputs: real1,
 						  choice: True,
 						  freeze_D: True}
-				loss, _ = sess.run([loss, train_op], feed_dict = feed_D)
-				print("step %d: %.3lf" % (step,loss))
+				loss_, _ = sess.run([loss, train_op], feed_dict = feed_D)
+				print("step %d: %.3lf" % (step,loss_))
 				for i in range(K):
-					loss, _ = sess.run([loss, train_op], feed_dict = feed_G)
-					print("step %d: %.3lf" % (step,loss))
+					loss_, _ = sess.run([loss, train_op], feed_dict = feed_G)
+					print("step %d: %.3lf" % (step,loss_))
 				feed_GD = {ginputs: plain1,
-						  choice: True,
-						  freeze_D: False}
-				loss, _ = sess.run([loss, train_op], feed_dict = feed_GD)
-				print("step %d: %.3lf" % (step,loss))
+						   dinputs: real1,
+						   choice: True,
+						   freeze_D: False}
+				loss_, _ = sess.run([loss, train_op], feed_dict = feed_GD)
+				print("step %d: %.3lf" % (step,loss_))
 
 			if(step % log_n == 0):
-				test_G = {ginputs: plain,
+				test_G = {ginputs: plain[:batch_size],
+						  dinputs: plain[:batch_size],
 						  choice: True,
 						  freeze_D: True}
 				out_G = sess.run([G_out], feed_dict = test_G)
@@ -88,10 +92,13 @@ def predo(tot_num = 200):
 	for i in range(tot_num):
 		img = cv2.imread('plain/' + str(i).zfill(4) + '.png')
 		# img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+		img = cv2.resize(img, (64, 48))
 		plain[i] = img
 		img = cv2.imread('real/' + str(i).zfill(4) + '.png')
 		# img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+		img = cv2.resize(img, (64, 48))
 		real[i] = img
+	print("read done...")
 
 def readin(tot_num = 200):
 	index = np.arange(tot_num)
