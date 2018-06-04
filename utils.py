@@ -1,11 +1,11 @@
 import tensorflow as tf
 
-def conv_layer(inputs, shape, stride, freeze=None, padding='SAME'):
+def conv_layer(inputs, shape, stride, freeze=None, padding='SAME', name=None):
 	filter_size = tf.TensorShape(shape)
 	f = tf.Variable(tf.truncated_normal(filter_size, stddev = 0.1), name = "filter")
 	if freeze != None:
 		f = tf.cond(freeze, lambda: tf.stop_gradient(f), lambda: f)
-	conv = tf.nn.conv2d(inputs, f, stride, padding)
+	conv = tf.nn.conv2d(inputs, f, stride, padding, name=name)
 	return conv
 
 class generator(object):
@@ -87,33 +87,20 @@ class discriminator(object):
 		return: batch_size*2
 		'''
 		stride = [1, 1, 1, 1]
-		# inpt = tf.concat([raw_imgs, imgs], axis=3)
-		inpt = imgs
-		with tf.name_scope('D_conv1'):
-			D_conv1 = conv_layer(inpt, [3, 3, 6, 64], stride, freeze, padding='SAME')
-			D_conv1 = tf.nn.leaky_relu(D_conv1)
-			D_conv1 = conv_layer(D_conv1, [3, 3, 64, 64], stride, freeze, padding='SAME')
-			D_conv1 = tf.nn.leaky_relu(D_conv1)
+		keep_prob = 0.7
+		conv = imgs
+		channel_in = 6
+		channel_out = 64
+		for i in list(range(1,5)):
+			with tf.name_scope('D_conv%d' % i):
+				conv = conv_layer(conv, [3, 3, channel_in, channel_out], stride, freeze, padding='SAME', name='D_conv%d' % i)
+				conv = tf.nn.leaky_relu(conv, name='D_leaky_relu%d' % i)
+				conv = tf.nn.max_pool(conv, [1, 2, 2, 1], [1, 2, 2, 1], padding='SAME', name='D_pool%d' % i)
+				conv = tf.nn.dropout(conv, keep_prob)
+				channel_in = channel_out
+				channel_out *= 2
 
-		with tf.name_scope('D_conv2'):
-			D_conv2 = conv_layer(D_conv1, [3, 3, 64, 128], stride, freeze, padding='SAME')
-			D_conv2 = tf.nn.leaky_relu(D_conv2)
-			D_conv2 = conv_layer(D_conv2, [3, 3, 128, 128], stride, freeze, padding='SAME')
-			D_conv2 = tf.nn.leaky_relu(D_conv2)
-
-		with tf.name_scope('D_conv3'):
-			D_conv3 = conv_layer(D_conv2, [3, 3, 128, 256], stride, freeze, padding='SAME')
-			D_conv3 = tf.nn.leaky_relu(D_conv3)
-			D_conv3 = conv_layer(D_conv3, [3, 3, 256, 256], stride, freeze, padding='SAME')
-			D_conv3 = tf.nn.leaky_relu(D_conv3)
-
-		with tf.name_scope('D_conv4'):
-			D_conv4 = conv_layer(D_conv3, [3, 3, 256, 512], stride, freeze, padding='SAME')
-			D_conv4 = tf.nn.leaky_relu(D_conv4)
-			D_conv4 = conv_layer(D_conv4, [3, 3, 512, 512], stride, freeze, padding='SAME')
-			D_conv4 = tf.nn.leaky_relu(D_conv4)
-
-		dense = tf.reduce_mean(D_conv4, axis=[1, 2])
+		dense = tf.reduce_mean(conv, axis=[1, 2])
 		with tf.name_scope('D_dense'):
 			wshape = [dense.get_shape()[-1], 2]
 			wshape = tf.TensorShape(wshape)
