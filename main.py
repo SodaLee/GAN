@@ -6,7 +6,7 @@ import numpy as np
 plain = np.zeros((210, 48, 64, 1), float)
 real = np.zeros((210, 48, 64, 1), float)
 batch_size = 10
-maxiter = 50
+maxiter = 200
 log_n = 5
 check_path = 'model/'
 
@@ -86,6 +86,7 @@ def train(restore = False, K = 1):
 							  dinputs: plain[:batch_size],
 							  keep_prob: 1.0}
 					out_G = sess.run([g_out], feed_dict = test_G)
+					out_G = out_G * 255
 					save_img(out_G, step)
 				saver.save(sess, check_path, global_step = step)
 
