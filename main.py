@@ -7,6 +7,8 @@ plain = np.zeros((210, 48, 64, 1), float)
 real = np.zeros((210, 48, 64, 1), float)
 batch_size = 10
 maxiter = 50
+log_n = 5
+check_path = 'model/'
 
 def predo(tot_num = 200):
 
@@ -65,6 +67,10 @@ def train(restore = False, K = 1):
 				for iters in range(200 // batch_size):
 					plain1 = plain[iters * batch_size: (iters + 1) * batch_size]
 					real1 = real[iters * batch_size: (iters + 1) * batch_size]
+					plain1 = plain1 / 255
+					plain1 = 2 * plain1 - 1
+					real1 = real1 / 255
+					real1 = 2 * real1 - 1
 					print(step, iters)
 					feed = {ginputs: plain1,
 							dinputs: real1,

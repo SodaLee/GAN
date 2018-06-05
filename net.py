@@ -102,5 +102,6 @@ def build_discriminator(dinputs, gouts, keep_prob):
 		dense = tf.nn.bias_add(dense, bias)
 		d_params.append(bias)
 		dense = tf.nn.sigmoid(dense)
+	dense = tf.clip_by_value(dense, 1e-7, 1e5)
 	return dense, d_params
 
