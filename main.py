@@ -6,6 +6,7 @@ import numpy as np
 plain = np.zeros((210, 48, 64, 1), float)
 real = np.zeros((210, 48, 64, 1), float)
 batch_size = 10
+maxiter = 50
 
 def predo(tot_num = 200):
 
@@ -25,6 +26,12 @@ def readin(tot_num = 200):
 	index = np.arange(tot_num)
 	np.random.shuffle(index)
 	return plain[index], real[index]
+
+def save_img(imgs, step):
+	print("saving %d rounds img." % step)
+	print(np.shape(imgs))
+	for i in range(batch_size):
+		cv2.imwrite('output/train_' + str(step) + '/' + str(i).zfill(4) + '.png', imgs[0][i])
 
 
 def train(restore = False, K = 1):
