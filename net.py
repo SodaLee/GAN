@@ -72,7 +72,7 @@ def build_generator(ginputs):
 
 	out, f = conv_layer(G_deconv1, [1, 1, 16, 1], stride, padding='SAME')
 	params.append(f)
-	out = tf.nn.sigmoid(out)
+	out = tf.nn.tanh(out)
 	return out, params
 
 def build_discriminator(dinputs, gouts, keep_prob):
@@ -93,12 +93,12 @@ def build_discriminator(dinputs, gouts, keep_prob):
 
 	dense = tf.reduce_mean(conv, axis=[1, 2])
 	with tf.name_scope('D_dense'):
-		wshape = [dense.get_shape()[-1], 2]
+		wshape = [dense.get_shape()[-1], 1]
 		wshape = tf.TensorShape(wshape)
 		weight = tf.Variable(tf.truncated_normal(wshape, stddev=0.1))
 		dense = tf.matmul(dense, weight)
 		d_params.append(weight)
-		bias = tf.Variable(tf.truncated_normal([2], stddev=0.1))
+		bias = tf.Variable(tf.truncated_normal([1], stddev=0.1))
 		dense = tf.nn.bias_add(dense, bias)
 		d_params.append(bias)
 		dense = tf.nn.sigmoid(dense)
