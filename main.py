@@ -82,11 +82,13 @@ def train(restore = False, K = 3):
 						print('G Loss:', loss)
 
 				if(step % log_n == 0):
-					test_G = {ginputs: plain[:batch_size],
-							  dinputs: plain[:batch_size],
+					# /255 *2 -1
+					test_G = {ginputs: plain[:batch_size]/255*2-1,
+							  dinputs: plain[:batch_size]/255*2-1,
 							  keep_prob: 1.0}
 					out_G = sess.run([g_out], feed_dict = test_G)
-					out_G = out_G * 255
+					# +1 *0.5 *255
+					out_G = (out_G + 1)*0.5*255
 					print(out_G[0])
 					save_img(out_G, step)
 				saver.save(sess, check_path, global_step = step)
