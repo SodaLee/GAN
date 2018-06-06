@@ -33,7 +33,7 @@ def readin(tot_num = 200):
 def save_img(imgs, step):
 	print("saving %d rounds img." % step)
 	print(np.shape(imgs))
-	for i in range(batch_size):
+	for i in range(batch_size_g):
 		cv2.imwrite('output/train_' + str(step) + '/' + str(i).zfill(4) + '.png', imgs[0][i])
 
 
@@ -95,7 +95,7 @@ def train(restore = False, K = 10):
 					plain1 = 2 * plain1 - 1
 					real1 = real1 / 255
 					real1 = 2 * real1 - 1
-					test_G = {ginputs: plain1,
+					test_G = {ginputs: [plain1[0]],
 							  dinputs: real1,
 							  keep_prob: 1.0}
 					out_G = sess.run([g_out], feed_dict = test_G)
