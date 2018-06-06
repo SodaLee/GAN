@@ -6,6 +6,7 @@ import numpy as np
 plain = np.zeros((210, 48, 64, 1), float)
 real = np.zeros((210, 48, 64, 1), float)
 batch_size = 10
+batch_size_g = 1
 maxiter = 200
 log_n = 5
 check_path = 'model/'
@@ -36,7 +37,7 @@ def save_img(imgs, step):
 		cv2.imwrite('output/train_' + str(step) + '/' + str(i).zfill(4) + '.png', imgs[0][i])
 
 
-def train(restore = False, K = 1):
+def train(restore = False, K = 10):
 	ginputs = tf.placeholder(tf.float32, [batch_size, 48, 64, 1])
 	dinputs = tf.placeholder(tf.float32, [batch_size, 48, 64, 1])
 	keep_prob = tf.placeholder(tf.float32)
@@ -79,6 +80,11 @@ def train(restore = False, K = 1):
 					loss, _ = sess.run([d_loss, d_train], feed_dict = feed)
 					print('D Loss: ', loss)
 					for j in range(K):
+						feed = {
+							ginputs: plain1[i],
+							dinputs: real[i],
+							keep_prob: 0.7
+						}
 						loss, _ = sess.run([g_loss, g_train], feed_dict = feed)
 						print('G Loss:', loss)
 
@@ -94,7 +100,7 @@ def train(restore = False, K = 1):
 							  keep_prob: 1.0}
 					out_G = sess.run([g_out], feed_dict = test_G)
 					# print(np.shape(out_G))
-					out_G[0] = (out_G[0] - 1) / 2 * 255
+					out_G[0] = (out_G[0] + 1) / 2 * 255
 
 					print(out_G[0][0])
 					save_img(out_G, step)
