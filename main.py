@@ -36,7 +36,7 @@ def save_img(imgs, step):
 		cv2.imwrite('output/train_' + str(step) + '/' + str(i).zfill(4) + '.png', imgs[0][i])
 
 
-def train(restore = False, K = 3):
+def train(restore = False, K = 1):
 	ginputs = tf.placeholder(tf.float32, [batch_size, 48, 64, 1])
 	dinputs = tf.placeholder(tf.float32, [batch_size, 48, 64, 1])
 	keep_prob = tf.placeholder(tf.float32)
@@ -86,7 +86,7 @@ def train(restore = False, K = 3):
 							  dinputs: plain[:batch_size],
 							  keep_prob: 1.0}
 					out_G = sess.run([g_out], feed_dict = test_G)
-					out_G = (out_G + 1) / 2 * 255
+					out_G = out_G * 255
 					print(out_G[0])
 					save_img(out_G, step)
 				saver.save(sess, check_path, global_step = step)
