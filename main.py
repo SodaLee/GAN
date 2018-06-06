@@ -38,7 +38,7 @@ def save_img(imgs, step):
 
 
 def train(restore = False, K = 10):
-	ginputs = tf.placeholder(tf.float32, [batch_size, 48, 64, 1])
+	ginputs = tf.placeholder(tf.float32, [batch_size_g, 48, 64, 1])
 	dinputs = tf.placeholder(tf.float32, [batch_size, 48, 64, 1])
 	keep_prob = tf.placeholder(tf.float32)
 
@@ -74,15 +74,15 @@ def train(restore = False, K = 10):
 					real1 = real1 / 255
 					real1 = 2 * real1 - 1
 					print(step, iters)
-					feed = {ginputs: plain1,
+					feed = {ginputs: [plain1[0]],
 							dinputs: real1,
 							keep_prob: 0.5}
 					loss, _ = sess.run([d_loss, d_train], feed_dict = feed)
 					print('D Loss: ', loss)
 					for j in range(K):
 						feed = {
-							ginputs: plain1[i],
-							dinputs: real[i],
+							ginputs: [plain1[j]],
+							dinputs: real1,
 							keep_prob: 0.7
 						}
 						loss, _ = sess.run([g_loss, g_train], feed_dict = feed)
