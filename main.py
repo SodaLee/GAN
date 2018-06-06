@@ -93,8 +93,9 @@ def train(restore = False, K = 1):
 							  dinputs: real1,
 							  keep_prob: 1.0}
 					out_G = sess.run([g_out], feed_dict = test_G)
-					out_G = (out_G - 1) / 2 * 255
 					print(np.shape(out_G))
+					out_G = (out_G - 1) / 2 * 255
+
 					print(out_G[0])
 					save_img(out_G, step)
 				saver.save(sess, check_path, global_step = step)
