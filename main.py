@@ -49,10 +49,11 @@ def train(restore = False, K = 1):
 	d_loss = -(tf.log(d_real) + tf.log(1 - d_fake))
 	g_loss = -tf.log(d_fake)
 
-	optimizer = tf.train.AdamOptimizer()
+	optimizer = tf.train.AdamOptimizer(0.001)
+	optimizer_2 = tf.train.AdamOptimizer(0.01)
 
 	d_train = optimizer.minimize(d_loss, var_list = d_params)
-	g_train = optimizer.minimize(g_loss, var_list = g_params)
+	g_train = optimizer_2.minimize(g_loss, var_list = g_params)
 
 	saver = tf.train.Saver()
 	with tf.Session() as sess:
@@ -82,11 +83,18 @@ def train(restore = False, K = 1):
 						print('G Loss:', loss)
 
 				if(step % log_n == 0):
-					test_G = {ginputs: plain[:batch_size],
-							  dinputs: plain[:batch_size],
+					plain1 = plain[:batch_size]
+					real1 = real[:batch_size]
+					plain1 = plain1 / 255
+					plain1 = 2 * plain1 - 1
+					real1 = real1 / 255
+					real1 = 2 * real1 - 1
+					test_G = {ginputs: plain1,
+							  dinputs: real1,
 							  keep_prob: 1.0}
 					out_G = sess.run([g_out], feed_dict = test_G)
-					out_G = out_G * 255
+					out_G = (out_G - 1) / 2 * 255
+					print(np.shape(out_G))
 					print(out_G[0])
 					save_img(out_G, step)
 				saver.save(sess, check_path, global_step = step)
