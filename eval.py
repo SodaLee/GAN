@@ -7,32 +7,32 @@ import os
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
-plain = np.zeros((7, 48, 64, 1), float)
-real = np.zeros((7, 48, 64, 1), float)
-batch_size = 7
+plain = np.zeros((8, 48, 64, 1), float)
+real = np.zeros((8, 48, 64, 1), float)
+batch_size = 8
 check_path = 'model/'
 
 def predo():
 
-	for i in range(7):
+	for i in range(8):
 		img = cv2.imread('plain/' + str(200+i).zfill(4) + '.png')
 		img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 		img = cv2.resize(img, (64, 48))
 		plain[i] = np.reshape(img, (48, 64, 1))
-		img = cv2.imread('real/' + str(200+i).zfill(4) + '.png')
-		img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-		img = cv2.resize(img, (64, 48))
-		real[i] = np.reshape(img, (48, 64, 1))
+		# img = cv2.imread('real/' + str(200+i).zfill(4) + '.png')
+		# img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+		# img = cv2.resize(img, (64, 48))
+		# real[i] = np.reshape(img, (48, 64, 1))
 	print("read done...")
 
 
 def save_img(imgs):
 	print("saving img.")
 	print(np.shape(imgs))
-	dirname = 'output/test'
+	dirname = 'output/test2'
 	if not os.path.exists(dirname):
 		os.makedirs(dirname)
-	for i in range(7):
+	for i in range(8):
 		cv2.imwrite(dirname + '/' + str(200+i).zfill(4) + '.png', imgs[0][i])
 
 
@@ -56,11 +56,11 @@ def test():
 
 		plain = plain / 255
 		plain = 2 * plain - 1
-		real = real / 255
-		real = 2 * real - 1
+		# real = real / 255
+		# real = 2 * real - 1
 		test_G = {ginputs: plain,
-				  dinputs: real,
-				  keep_prob: 1.0,
+				  # dinputs: real,
+				  # keep_prob: 1.0,
 				  is_train: False}
 		out_G = sess.run([g_out], feed_dict = test_G)
 		out_G[0] = (out_G[0] + 1) / 2 * 255
