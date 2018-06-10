@@ -85,7 +85,7 @@ def build_discriminator(dinputs, gouts, keep_prob):
 			conv, f = conv_layer(conv, [3, 3, channel_in, channel_out], stride, padding='SAME', name='D_conv%d' % i)
 			conv = tf.nn.leaky_relu(conv, name='D_leaky_relu%d' % i)
 			conv = tf.nn.max_pool(conv, [1, 2, 2, 1], [1, 2, 2, 1], padding='SAME', name='D_pool%d' % i)
-			conv = tf.nn.dropout(conv, keep_prob)
+			# conv = tf.nn.dropout(conv, keep_prob)
 			d_params.append(f)
 			channel_in = channel_out
 			channel_out *= 2
@@ -94,6 +94,18 @@ def build_discriminator(dinputs, gouts, keep_prob):
 	shape = conv.shape
 	dense = tf.reshape(conv, [-1,shape[1]*shape[2]*shape[3]])
 	with tf.name_scope('D_dense'):
+		wshape = [dense.get_shape()[-1], 100]
+		wshape = tf.TensorShape(wshape)
+		weight = tf.Variable(tf.truncated_normal(wshape, stddev=0.1))
+		dense = tf.matmul(dense, weight)
+		d_params.append(weight)
+		bias = tf.Variable(tf.truncated_normal([100], stddev=0.1))
+		dense = tf.nn.bias_add(dense, bias)
+		d_params.append(bias)
+		# dense = tf.nn.sigmoid(dense)
+	dense = tf.nn.dropout(dense, keep_prob)
+	
+	with tf.name_scope('D_dense_2'):
 		wshape = [dense.get_shape()[-1], 1]
 		wshape = tf.TensorShape(wshape)
 		weight = tf.Variable(tf.truncated_normal(wshape, stddev=0.1))
@@ -102,7 +114,6 @@ def build_discriminator(dinputs, gouts, keep_prob):
 		bias = tf.Variable(tf.truncated_normal([1], stddev=0.1))
 		dense = tf.nn.bias_add(dense, bias)
 		d_params.append(bias)
-		# dense = tf.nn.sigmoid(dense)
 	# dense = tf.clip_by_value(dense, 1e-7, 1e5)
 	return dense, d_params
 

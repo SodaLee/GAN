@@ -14,6 +14,8 @@ maxiter = 300
 log_n = 5
 l1_weight = 10
 check_path = 'model/'
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
 
 def predo(tot_num = 200):
 
@@ -75,7 +77,7 @@ def train(restore = False, K = 3):
 		g_train = optimizer_2.minimize(g_loss, var_list = g_params)
 
 	saver = tf.train.Saver(max_to_keep=15)
-	with tf.Session() as sess:
+	with tf.Session(config = config) as sess:
 		if restore:
 			saver.restore(sess, check_path)
 		else:
@@ -129,4 +131,5 @@ def main():
 	# test()
 
 if __name__ == '__main__':
+
 	main()

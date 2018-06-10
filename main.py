@@ -50,7 +50,7 @@ def train(restore = False, K = 10):
 	d_loss = -(tf.log(d_real) + tf.log(1 - d_fake))
 	g_loss = -tf.log(d_fake)
 
-	optimizer = tf.train.AdamOptimizer(0.001)
+	optimizer = tf.train.AdamOptimizer(0.0001)
 	optimizer_2 = tf.train.AdamOptimizer(0.01)
 
 	d_train = optimizer.minimize(d_loss, var_list = d_params)
